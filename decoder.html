@@ -1,0 +1,160 @@
+<html>
+  <head>
+    <script type="text/javascript">
+      var alpha = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789.,!?<>"/\\\'';
+      var key = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ 0123456789.,!?<>"/\\\'';
+      var deg = 360 / key.length;
+
+      function shuffle(theString) {
+        var parts = theString.split('');
+        for (var i = parts.length; i > 0;) {
+            var random = parseInt(Math.random() * i);
+            var temp = parts[--i];
+            parts[i] = parts[random];
+            parts[random] = temp;
+        }
+        return parts.join('');
+      }
+
+      function encode() {
+        var cKey = key;
+        var pt = document.getElementById('plaintext').value;
+        var ct = '';
+        for(i=0;i<pt.length;i++) {
+          // For each character, encode, and then update the key
+          cc = pt.charAt(i).toUpperCase();
+          shifts = alpha.indexOf(cc);
+          if (shifts < 0) {
+            ct = ct + cc;
+          } else {
+            ec = cKey.charAt(shifts);
+            ct = ct + ec;
+            cKey = cKey.substring(shifts)+cKey.substring(0,shifts);
+          }
+        }
+        document.getElementById('ciphertext').value = ct;
+      }
+
+      function decode() {
+        var cKey = key;
+        var ct = document.getElementById('ciphertext').value;
+        var pt = '';
+        for(i=0;i<ct.length;i++) {
+          // For each character, encode, and then update the key
+          cc = ct.charAt(i).toUpperCase();
+          shifts = cKey.indexOf(cc);
+          if (shifts < 0) {
+            pt = pt + cc;
+          } else {
+            ec = alpha.charAt(shifts);
+            pt = pt + ec;
+            cKey = cKey.substring(shifts)+cKey.substring(0,shifts);
+          }
+        }
+        document.getElementById('plaintext').value = pt;
+      }
+
+      function rekey(){
+        ct = document.getElementById('ciphertext').value;
+        if(ct){
+          if(confirm('Are you sure you want to generate your new key?  The current encrypted text will become undecryptable!')) key = shuffle(key);
+        } else {
+          key = shuffle(key);
+        }
+        document.getElementById('key').value = key;
+        document.getElementById('inner-ring').innerHTML = '';
+        newHTML = '';
+        for(i=0;i<key.length;i++) {
+        	newHTML = newHTML + '<a class="inner-ring-letter" style="-moz-transform:rotate('+((i*deg))+'deg);">'+key.charAt(i).toUpperCase()+'</a>';
+        }
+        document.getElementById('inner-ring').innerHTML = newHTML;
+      }
+    </script>
+    <style>
+       #left-container {
+        float: none;
+       }
+
+       #right-container {
+        float: none;
+       }
+
+       #ring {
+        position: relative;
+        border: solid black 1px;
+        background-color: transparent;
+        width: 1160px;
+        height: 580px;
+       }
+
+       #inner-ring-container, #outer-ring-container {
+         position: absolute;
+         top: 10px;
+         width: 560px;
+         height: 560px;
+         color: black;
+         font-weight: bold;
+         font-family: "Courier New", Courier, monospace;
+       }
+
+       #inner-ring-container { left: 10px; background: url(img/ir-bg.png) no-repeat center top transparent; }
+       #outer-ring-container { left: 590px; background: url(img/or-bg.png) no-repeat center top transparent; }
+
+       .inner-ring-letter {
+          position: absolute;
+          top: 35px;
+          left: 275px;
+          transform-origin: 5px 245px;
+          font-size: 18px;
+        }
+
+        .outer-ring-letter {
+          position: absolute;
+          top: 0;
+          left: 274px;
+          font-size: 28px;
+          transform-origin: 7px 280px;
+        }
+    </style>
+  </head>
+  <body>
+    <div id="right-container">
+      <strong>Plaintext:</strong><br/>
+      <textarea rows=8 cols=80 id="plaintext"></textarea><br/>
+      <strong>Ciphertext:</strong><br/>
+      <textarea rows=8 cols=80 id="ciphertext"></textarea><br/>
+      <strong>Key:</strong><br/>
+      <input type=text size=50 id="key"/><br/><br/>
+      <button onclick="encode();">Encode</button>
+      <button onclick="decode();">Decode</button>
+      <button onclick="rekey();">Generate New Key</button>
+      <script type="text/javascript">
+        document.getElementById('key').value = key;
+      </script>
+    </div>
+	  <br/><br/>
+    <div id="left-container">
+      <strong>Printable Version</strong><br/>
+        <div id="ring">
+          <div id="inner-ring-container" style="">
+            <div id="inner-ring">
+              <script type="text/javascript">
+                  for(i=0;i<key.length;i++) {
+                    document.write('<div class="inner-ring-letter" style="-moz-transform:rotate('+((i*deg))+'deg);">'+key.charAt(i).toUpperCase()+'</div>');
+                  }
+              </script>
+            </div>
+          </div>
+          <div id="outer-ring-container">
+            <div id="outer-ring">
+              <script type="text/javascript">
+                  for(i=0;i<key.length;i++) {
+                    document.write('<div class="outer-ring-letter" style="-moz-transform:rotate('+(i*(deg))+'deg);">'+key.charAt(i).toUpperCase()+'</div>');
+                  }
+              </script>
+            </div> <!-- End outer Ring -->
+          </div> <!-- End Outer Ring Container -->
+        </div> <!-- End Ring -->
+    </div> <!-- End left container -->
+  </body>
+</html>
